@@ -2,8 +2,6 @@
 Documentation focused on pattern discovery in Wireshark, useful for identifying malware, suspicious behavior, and other types of unusual activity.
 First, I'll give a very basic overview of Wireshark, and later in this documentation I'll focus in detail on pattern discovery using Malware-Traffic-Analysis.net.
 
-<img width="373" height="327" alt="image" src="https://github.com/user-attachments/assets/ec8f96a9-dc05-439b-a8ac-678cc5e566cd" />
-
 # Starts Here #
 
 1. Fundamentals and Overview (Wireshark 101)
