@@ -1,6 +1,6 @@
 # WiresharkNetworkPatterns
 Documentation focused on pattern discovery in Wireshark, useful for identifying malware, suspicious behavior, and other types of unusual activity.
-
+First, I'll give a very basic overview of Wireshark, and later in this documentation I'll focus in detail on pattern discovery using Malware-Traffic-Analysis.net.
 
 # Starts Here #
 
@@ -73,3 +73,5 @@ Protocol Hierarchy: Shows the protocol distribution in the capture to identify s
 Endpoints & Conversations: Lists all IPs and unique communications, allowing you to map who is talking to whom.
 
 Firewall ACL Rules: Wireshark can generate ready-made firewall rules (iptables, Cisco IOS, etc.) based on selected packets to quickly block threats.
+
+
