@@ -204,4 +204,44 @@ Jogando um outro amigo dele!
 
 Encerramos por aqui! Até a próxima analise!
 
+Considerando as informações até aqui, vamos montar nossa cyberkillchain:
+
+1. Entrega (Delivery)
+Esta fase foi identificada no momento em que a vítima acessou o site comprometido e os "Gates" iniciaram o redirecionamento.
+
+Evidência: O arquivo jquery-1.6.5.min.js (carregado via insightcrime.org) que continha o código de fingerprinting e o iframe invisível para o IP malicioso 93.171.172.220.
+Gate Adicional: O redirecionamento HTTP 302 Found do host alnera.eu para uma URL ofuscada no domínio brainsync.com.
+
+2. Exploração (Exploitation)
+O kit de exploração analisou o ambiente e disparou a arma digital contra uma vulnerabilidade específica.
+
+Evidência: A requisição GET /?2 para a Landing Page no IP 93.171.172.220, que identificou o navegador MSIE 8.0 em Windows 7.
+Execução do Exploit: O download do arquivo Java malicioso (application/java-archive) via plugin Java/1.6.0_25, com o objetivo de explorar falhas no ambiente de execução Java.
+
+3. Instalação (Installation)
+O sucesso da exploração permitiu que o sistema baixasse o agente malicioso final.
+
+Evidência: O download do arquivo binário através da requisição GET /drddbg?mebhqtwycgg=nshbdaiqnay.
+Confirmação: A presença do cabeçalho de executável Windows (assinatura MZ) e o Content-Type: application/octet-stream no corpo da resposta HTTP.
+
+
+As informações abaixo não foram verificadas nessa analise, somente mediante pesquisa, mas serão futuramente: 
+4. Exploração (Exploitation) 
+A Landing Page realiza o fingerprinting do sistema da vítima (verificando versão do Windows e do navegador).
+
+Se o alvo for vulnerável, o Neutrino entrega o exploit específico, como o arquivo Java Archive (application/java-archive) que você identificou sendo baixado via plugin.
+
+5. Instalação (Installation)
+Após a exploração bem-sucedida da falha (ex: no Java), o sistema executa o download do malware real.
+
+Você capturou esta fase no GET /drddbg..., onde o arquivo binário (application/octet-stream) contendo a assinatura de cabeçalho executável do Windows foi transferido para a máquina.
+
+6. Comando e Controle (C2)
+Uma vez instalado, o malware tenta estabelecer comunicação com o servidor do atacante para receber instruções.
+
+Geralmente, isso é visto no tráfego como requisições periódicas (beacons) para IPs ou domínios de controle.
+
+7. Ações sobre Objetivos (Actions on Objectives)
+Esta é a fase final onde o malware executa sua função principal, como criptografar arquivos (Ransomware), roubar credenciais bancárias (Banking Trojan) ou exfiltrar dados sensíveis.
+
 
