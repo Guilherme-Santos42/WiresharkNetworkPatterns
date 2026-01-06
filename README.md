@@ -1,6 +1,7 @@
 # WiresharkNetworkPatterns
 Documentation focused on pattern discovery in Wireshark, useful for identifying malware, suspicious behavior, and other types of unusual activity.
 First, I'll give a very basic overview of Wireshark, and later in this documentation I'll focus in detail on pattern discovery using Malware-Traffic-Analysis.net.
+I intend to expand the content of this repository, focusing on the most well-known malware and observing their behavior!
 
 # Starts Here #
 
